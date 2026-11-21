@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.9.10 (2026-11-21)
+- The server now writes one line to the app's log saying which app connected and whether that app says it can show cards. It contains no account data. Use it to find out why a card does not appear.
+
 ## 0.9.9 (2026-11-21)
 
 Fixes from an independent security audit of 0.9.6 (every finding was reproduced with a test first):
