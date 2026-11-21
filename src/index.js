@@ -23,8 +23,15 @@ try {
 }
 // Snapshot of the non-secret settings taken at startup. Later edits to .env do not change limits or the target account.
 const settings = { ...process.env };
-const server = new McpServer({ name: "ads-mcp-for-snapchat", version: "0.9.9" });
+const server = new McpServer({ name: "ads-mcp-for-snapchat", version: "0.9.10" });
 // Only the OAuth credentials are re-read from .env when a token is needed, so replacing them does not require a restart.
 const client = new SnapClient({ beforeToken: () => loadEnv(undefined, { override: true }), onNewRefreshToken: (t) => setEnvValue("SNAP_REFRESH_TOKEN", t), timeoutMs: policy.httpTimeoutMs });
 registerTools(server, client, settings);
+// One line in the app's log: which app connected and whether it says it can show cards. This is how we find out why a card does not appear.
+server.server.oninitialized = () => {
+  const info = server.server.getClientVersion() ?? {};
+  const ext = server.server.getClientCapabilities()?.extensions ?? {};
+  const ui = ext["io.modelcontextprotocol/ui"];
+  console.error(`[ads-mcp-for-snapchat] client=${info.name ?? "?"} ${info.version ?? ""} cards=${ui ? `yes (${(ui.mimeTypes ?? []).join(",")})` : "no"} extensions=${Object.keys(ext).join(",") || "none"}`);
+};
 await server.connect(new StdioServerTransport());
